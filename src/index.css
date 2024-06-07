@@ -1,4 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('@coreui/coreui/dist/css/coreui.min.css');
+
+html {
+  height: 100%;
+}
 
 * {
   box-sizing: border-box;
@@ -152,4 +157,58 @@
   bottom: 50px;
   font-size: 13px;
   font-style: italic;
+}
+
+.rooms-page-container{
+  background-color: #f9f5eb;
+  padding: 4%;
+  /* height: 200%; */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.rooms-page-container .rooms-list-container{
+  width: 90%;
+  padding: 5%;
+  background-color: #eee8dc;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  overflow-x: auto;
+  justify-content:left;
+  border-radius: 25px;
+}
+
+.rooms-page-container .rooms-page-header{
+ justify-content: center;
+ text-align: center;
+ padding: 7%;
+}
+
+.rooms-page-container .rooms-page-before-rooms-container{
+  justify-content: center;
+  text-align: center;
+  /* padding: 10%; */
+  margin: 2%
+ }
+
+.rooms-page-container .rooms-page-header .rooms-page-buttons-container{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+ }
+
+ .rooms-page-container .rooms-page-header .rooms-page-buttons-container .button{
+  margin: 2%;
+ }
+
+
+.rooms-page-container .rooms-list-container .room-card{
+  width: 23%;
+  margin-bottom: 1%;
+  flex-shrink: 0;
+  margin-right: 2%;
 }

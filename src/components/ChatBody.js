@@ -1,8 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCookies } from 'react-cookie';
 
 const ChatBody = ({ messages }) => {
   const navigate = useNavigate();
+
+  const [cookies, setCookie] = useCookies(['identity']);
 
   const handleLeaveChat = () => {
     localStorage.removeItem('userName');
@@ -13,7 +16,7 @@ const ChatBody = ({ messages }) => {
   return (
     <>
       <header className="chat__mainHeader">
-        <p>Hangout with Colleagues</p>
+        <p></p>
         <button className="leaveChat__btn" onClick={handleLeaveChat}>
           LEAVE CHAT
         </button>
@@ -38,9 +41,9 @@ const ChatBody = ({ messages }) => {
           )
         )}
 
-        <div className="message__status">
+        {/* <div className="message__status">
           <p>Someone is typing...</p>
-        </div>
+        </div> */}
       </div>
     </>
   );

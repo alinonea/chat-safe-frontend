@@ -1,13 +1,26 @@
 import React, { useState } from 'react';
 
-const ChatFooter = ({ socket }) => {
+const ChatFooter = ({ socket, session, addPlainMessage}) => {
     const [message, setMessage] = useState('');
   
-    const handleSendMessage = (e) => {
+    const handleSendMessage = async(e) => {
         e.preventDefault();
-        if (message.trim() && localStorage.getItem('userName')) {
-          socket.emit('accept-message', localStorage.getItem('userName'), message);
+        
+        const roomId = localStorage.getItem('roomId')
+        const address = localStorage.getItem('userName')
+
+        const buffer = new TextEncoder().encode(message.trim()).buffer
+        const encrytpedMessage = await session.encrypt(buffer)
+        console.log('sending cipher', session)
+        if (buffer && address) {
+          socket.emit('accept-message', address, encrytpedMessage, roomId);
         }
+        addPlainMessage({
+            roomId,
+            address,
+            message,
+            timestamp: Date.now()
+        })
         setMessage('');
     };
 
@@ -21,7 +34,7 @@ const ChatFooter = ({ socket }) => {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
-          <button className="sendBtn">SEND</button>
+          <button className="sendBtn">Send</button>
         </form>
       </div>
     );
