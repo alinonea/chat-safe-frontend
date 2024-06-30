@@ -25,8 +25,8 @@ const RoomsPage = ({socket}) => {
             <div className='rooms-page-header'>
                 <h2>Welcome to the Rooms Page</h2>
                 <div className='rooms-page-buttons-container'>
-                    <CButton color='primary' className='button'>Create a room</CButton>
-                    <CButton color='secondary' className='button'>Join a room</CButton>
+                    <CButton color='primary' className='button' onClick={() => { navigate('/create-room') }}>Create a room</CButton>
+                    <CButton color='secondary' className='button' onClick={() => { navigate('/join-room') }}>Join a room</CButton>
                 </div>
                 
             </div>
@@ -37,48 +37,6 @@ const RoomsPage = ({socket}) => {
                 {
                     rooms ? rooms.map(room => <RoomCard key={room._id} room={room} socket={socket}/>) : ''
                 }
-                {/* <CCard className="room-card">
-                    <CCardHeader>Room 1</CCardHeader>
-                    <CCardBody>
-                        <CCardTitle>Room 1 name</CCardTitle>
-                        <CButton color="primary" href="#">Open chat room</CButton>
-                    </CCardBody>
-                </CCard>
-                <CCard className="room-card">
-                    <CCardHeader>Room 2</CCardHeader>
-                    <CCardBody>
-                        <CCardTitle>Room 2 name</CCardTitle>
-                        <CButton color="primary" href="#">Open chat room</CButton>
-                    </CCardBody>
-                </CCard>
-                <CCard className="room-card">
-                    <CCardHeader>Room 3</CCardHeader>
-                    <CCardBody>
-                        <CCardTitle>Room 3 name</CCardTitle>
-                        <CButton color="primary" href="#">Open chat room</CButton>
-                    </CCardBody>
-                </CCard>
-                <CCard className="room-card">
-                    <CCardHeader>Room 4</CCardHeader>
-                    <CCardBody>
-                        <CCardTitle>Room 4 name</CCardTitle>
-                        <CButton color="primary" href="#">Open chat room</CButton>
-                    </CCardBody>
-                </CCard>
-                <CCard className="room-card">
-                    <CCardHeader>Room 5</CCardHeader>
-                    <CCardBody>
-                        <CCardTitle>Room 5 name</CCardTitle>
-                        <CButton color="primary" href="#">Open chat room</CButton>
-                    </CCardBody>
-                </CCard>
-                <CCard className="room-card">
-                    <CCardHeader>Room 6</CCardHeader>
-                    <CCardBody>
-                        <CCardTitle>Room 6 name</CCardTitle>
-                        <CButton color="primary" href="#">Open chat room</CButton>
-                    </CCardBody>
-                </CCard> */}
             </div>
         </div>
     );

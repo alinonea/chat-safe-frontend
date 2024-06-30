@@ -13,7 +13,6 @@ const Home = ({socket}) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         localStorage.setItem('userName', userName);
-        //sends the username and socket ID to the Node.js server
 
         if(!cookies.identityKey){
             createID(userName, null)
@@ -52,11 +51,9 @@ const Home = ({socket}) => {
     
         const baseKeyId = makeKeyId()
         const preKey = await KeyHelper.generatePreKey(baseKeyId)
-        // store.storePreKey(`${baseKeyId}`, preKey.keyPair)
     
         const signedPreKeyId = makeKeyId()
         const signedPreKey = await KeyHelper.generateSignedPreKey(identityKeyPair, signedPreKeyId)
-        // store.storeSignedPreKey(signedPreKeyId, signedPreKey.keyPair)
     
         // Now we register this with the server or other directory so all users can see them.
         // You might implement your directory differently, this is not part of the SDK.

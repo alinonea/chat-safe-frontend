@@ -18,9 +18,6 @@ const ChatPage = ({ socket }) => {
 
   useEffect(() => {
     const getLastMessages = async() => {
-        // const dateNow = Date.now() - 24 * 60 * 60 * 1000
-        // const messages = await axios.get('http://localhost:3000/messages/' + localStorage.getItem('roomId') + "?after=" + dateNow)
-        // setMessages([...messages.data])
         if(localStorage.getItem('roomId')){
             socket.emit('join', localStorage.getItem('roomId'));
         }
@@ -58,11 +55,8 @@ const ChatPage = ({ socket }) => {
             preKey.keyPair.privKey = preKey.keyPair.privKey.buffer
             await store.storePreKey(preKey.keyId, preKey.keyPair)
         }
-        // for(const preKey of otherUserPreKeys){
-        //     await store.storePreKey(preKey.keyId, preKey.keyPair);
-        // }
+
         await store.storeSignedPreKey(signedPreKey.keyId, signedPreKey.keyPair)
-        // await store.storeSignedPreKey(otherUserSignedPreKey.keyId, otherUserSignedPreKey.keyPair)
 
         const recipientAddress = new SignalProtocolAddress(otherPerson, 1)
         const sessionBuilder = new SessionBuilder(store, recipientAddress)
@@ -86,6 +80,14 @@ const ChatPage = ({ socket }) => {
         const sessionCipher = new SessionCipher(store, recipientAddress)
         setSession(sessionCipher)
 
+    }
+
+    getLastMessages()
+
+    }, []);
+
+  useEffect(() => {
+    const receivedMessage = async() => {
         socket.on('send-message', async (message, from) => {
             console.log('entered send message socket')
             if(from != localStorage.getItem('userName')){
@@ -114,62 +116,21 @@ const ChatPage = ({ socket }) => {
                     console.log(plaintext)
                 }
         
-                const secretMessage = new TextDecoder().decode(new Uint8Array(plaintext))
-                console.log(secretMessage)
+                message.message = new TextDecoder().decode(new Uint8Array(plaintext))
         
-                // setMessages([...messages, secretMessage])
+                setMessages((prevState) => ([...prevState, message]))
             }
         });
     }
 
-    getLastMessages()
-
-    }, []);
-
-//   useEffect(() => {
-//     const receivedMessage = async() => {
-//         socket.on('send-message', async (message, from) => {
-//             console.log('entered send message socket')
-//             if(from != localStorage.getItem('userName')){
-//                 let plaintext
-//                 let ciphertext = message.message
-//                 console.log(ciphertext)
-
-//                 const otherPerson = localStorage.getItem('roomUsers').split(',').filter((user) => {
-//                     return user != localStorage.getItem('userName');
-//                 })[0]
-
-//                 const recipientAddress = new SignalProtocolAddress(otherPerson, 1)
-
-//                 const sessionCipher = new SessionCipher(store, recipientAddress)
-//                 console.log('receiving cipher', sessionCipher)
-
-//                 if (ciphertext.type === 3) {
-//                 try {
-//                     plaintext = await sessionCipher.decryptPreKeyWhisperMessage(ciphertext.body, 'binary')
-                    
-//                 } catch (e) {
-//                     console.log(e)
-//                 }
-//                 } else if (ciphertext.type === 1) {
-//                     plaintext = await sessionCipher.decryptWhisperMessage(ciphertext.body, 'binary')
-//                     console.log(plaintext)
-//                 }
-        
-//                 const secretMessage = new TextDecoder().decode(new Uint8Array(plaintext))
-//                 console.log(secretMessage)
-        
-//                 // setMessages([...messages, secretMessage])
-//             }
-//         });
-//     }
-
-//     receivedMessage()
-//   }, []);
+    receivedMessage()
+  }, []);
 
   const addPlainMessage = (message) => {
     setMessages([...messages, message])
   }
+
+  console.log(messages)
 
   return (
     <div className="chat">

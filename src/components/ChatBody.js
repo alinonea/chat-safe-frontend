@@ -5,11 +5,10 @@ import { useCookies } from 'react-cookie';
 const ChatBody = ({ messages }) => {
   const navigate = useNavigate();
 
-  const [cookies, setCookie] = useCookies(['identity']);
-
   const handleLeaveChat = () => {
-    localStorage.removeItem('userName');
-    navigate('/');
+    localStorage.removeItem('roomId');
+    localStorage.removeItem('roomUsers');
+    navigate('/rooms');
     window.location.reload();
   };
 
@@ -40,10 +39,6 @@ const ChatBody = ({ messages }) => {
             </div>
           )
         )}
-
-        {/* <div className="message__status">
-          <p>Someone is typing...</p>
-        </div> */}
       </div>
     </>
   );
