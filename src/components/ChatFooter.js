@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const ChatFooter = ({ socket, session, addPlainMessage}) => {
+const ChatFooter = ({ socket, session, senderSession, addPlainMessage}) => {
     const [message, setMessage] = useState('');
   
     const handleSendMessage = async(e) => {
@@ -11,9 +11,10 @@ const ChatFooter = ({ socket, session, addPlainMessage}) => {
 
         const buffer = new TextEncoder().encode(message.trim()).buffer
         const encrytpedMessage = await session.encrypt(buffer)
+        const encryptedOwnMessage = await senderSession.encrypt(buffer)
         console.log('sending cipher', session)
         if (buffer && address) {
-          socket.emit('accept-message', address, encrytpedMessage, roomId);
+          socket.emit('accept-message', address, encrytpedMessage, encryptedOwnMessage, roomId);
         }
         addPlainMessage({
             roomId,

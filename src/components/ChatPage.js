@@ -13,6 +13,7 @@ const ChatPage = ({ socket }) => {
   const [messages, setMessages] = useState([]);
   const [store, setStore] = useState(new SignalProtocolStore());
   const [session, setSession] = useState(Object)
+  const [senderSession, setSenderSession] = useState(Object)
 
   const [cookies, setCookie] = useCookies(['identityKey','registrationId']);
 
@@ -61,8 +62,6 @@ const ChatPage = ({ socket }) => {
         const recipientAddress = new SignalProtocolAddress(otherPerson, 1)
         const sessionBuilder = new SessionBuilder(store, recipientAddress)
 
-        console.log(store)
-
         await sessionBuilder.processPreKey({
             identityKey: otherUserPreKeysBundle.identityKey,
             signedPreKey: {
@@ -77,16 +76,91 @@ const ChatPage = ({ socket }) => {
             registrationId: otherUserPreKeysBundle.registrationId
         })
 
+        const senderAddress = new SignalProtocolAddress(localStorage.getItem('userName'), 1)
+        const senderSessionBuilder = new SessionBuilder(store, senderAddress)
+
+        await senderSessionBuilder.processPreKey({
+            identityKey: personalPreKeysBundle.identityKey,
+            signedPreKey: {
+                signature: personalPreKeysBundle.signedPreKey.signature,
+                publicKey: personalPreKeysBundle.signedPreKey.keyPair.pubKey,
+                keyId: personalPreKeysBundle.signedPreKey.keyId
+            },
+            preKey: {
+                publicKey: personalPreKeysBundle.preKeys[0].keyPair.pubKey,
+                keyId: personalPreKeysBundle.preKeys[0].keyId
+            },
+            registrationId: personalPreKeysBundle.registrationId
+        })
+
         const sessionCipher = new SessionCipher(store, recipientAddress)
+        const senderSessionCipher = new SessionCipher(store, senderAddress)
         setSession(sessionCipher)
+        setSenderSession(senderSessionCipher)
+
+        getMessagesHistory()
 
     }
 
     getLastMessages()
 
+    const getMessagesHistory = async() => {
+        const today = new Date()
+        const last30Days = new Date().setDate(today.getDate() - 30)
+        const messages = await axios.get(`http://localhost:3000/messages/${localStorage.getItem('roomId')}?after=${last30Days}`)
+        
+        const otherPerson = localStorage.getItem('roomUsers').split(',').filter((user) => {
+            return user != localStorage.getItem('userName');
+        })[0]
+        const senderUsername = localStorage.getItem('userName');
+
+        const recipientAddress = new SignalProtocolAddress(otherPerson, 1)
+        const senderAddress = new SignalProtocolAddress(senderUsername, 1) 
+
+        const recipientSessionCipher = new SessionCipher(store, recipientAddress)
+        const senderSessionCipher = new SessionCipher(store, senderAddress)
+
+        const messagesList = messages.data
+        for(const message of messagesList){
+            let ciphertext
+            let sessionCipher
+            if(message.address == senderUsername){
+                ciphertext = message.ownMessage
+                sessionCipher = senderSessionCipher
+            } else{
+                ciphertext = message.message
+                sessionCipher = recipientSessionCipher
+            }
+
+            console.log(message)
+
+            let plaintext
+            if (ciphertext.type === 3) {
+                try {
+                    plaintext = await sessionCipher.decryptPreKeyWhisperMessage(ciphertext.body, 'binary')
+                    
+                } catch (e) {
+                    console.log(e)
+                }
+            } else if (ciphertext.type === 1) {
+                plaintext = await sessionCipher.decryptWhisperMessage(ciphertext.body, 'binary')
+                console.log(plaintext)
+            }
+
+            message.message = new TextDecoder().decode(new Uint8Array(plaintext))
+                
+        }
+
+        setMessages((prevState) => ([...prevState, ...messagesList]))
+    }
+
+    // getMessagesHistory()
+
     }, []);
 
   useEffect(() => {
+    
+
     const receivedMessage = async() => {
         socket.on('send-message', async (message, from) => {
             console.log('entered send message socket')
@@ -137,7 +211,7 @@ const ChatPage = ({ socket }) => {
       <ChatBar socket={socket} />
       <div className="chat__main">
         <ChatBody messages={messages} />
-        <ChatFooter socket={socket} session={session} addPlainMessage={ addPlainMessage }/>
+        <ChatFooter socket={socket} session={session} senderSession={senderSession} addPlainMessage={ addPlainMessage }/>
       </div>
     </div>
   );
